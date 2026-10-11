@@ -314,6 +314,7 @@
       if (st.engine === 'ai') await runAI(lines, st.seed); else await runOffline(lines, 0, st.seed);
       if (st.out.length !== st.src.length) { st.out = st.src.slice(); note('Something went wrong, so your original text was kept.'); }
       renderOut();
+      if (st.engine !== 'ai' && st.out.join('\n') === st.src.join('\n')) note('The offline engine found nothing to reword in this text. Try a longer sentence, another style, or AI mode.', true);
       if (window.matchMedia('(max-width: 900px)').matches) $('outCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (err) {
       if (err && err.cancelled) { note('Stopped.', true); if (st.out.length === st.src.length) renderOut(); }

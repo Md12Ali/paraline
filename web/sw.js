@@ -1,5 +1,5 @@
 /* Lets ParaLine open and work with no internet after the first visit. */
-var CACHE = 'paraline-v1';
+var CACHE = 'paraline-v2';
 var FILES = ['./', 'index.html', 'app.js', 'engine.js', 'favicon.svg', 'icon-192.png', 'manifest.webmanifest'];
 
 self.addEventListener('install', function (e) {
