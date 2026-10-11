@@ -1,0 +1,121 @@
+name: Build ParaLine
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      task:
+        description: "build = make the app files. make-signing-key = one-time step before Google Play."
+        type: choice
+        options: [build, make-signing-key]
+        default: build
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    if: github.event_name == 'push' || inputs.task == 'build'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Unpack the source if it was uploaded as a zip
+        run: |
+          if [ ! -f settings.gradle ]; then
+            unzip -o -q ./*.zip
+          fi
+          test -f settings.gradle
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.14.3"
+
+      - name: Test the rewriting engine
+        run: node test/fuzz.js
+
+      - name: Install Android 16 SDK platform
+        run: |
+          SDKM="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKM" --licenses > /dev/null || true
+          "$SDKM" "platforms;android-36" > /dev/null || true
+
+      - name: Prepare signing key
+        id: sign
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ] && [ -n "$KEYSTORE_PASSWORD" ]; then
+            printf '%s' "$KEYSTORE_BASE64" | tr -d ' \n\r' | base64 -d > "$RUNNER_TEMP/upload.jks"
+            echo "KEYSTORE_FILE=$RUNNER_TEMP/upload.jks" >> "$GITHUB_ENV"
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build test APK
+        run: gradle --no-daemon assembleDebug
+
+      - name: Build signed Google Play bundle
+        if: steps.sign.outputs.ready == 'true'
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: gradle --no-daemon bundleRelease assembleRelease
+
+      - name: Collect files
+        run: |
+          mkdir -p out
+          cp app/build/outputs/apk/debug/app-debug.apk out/ParaLine-test.apk
+          if [ -f app/build/outputs/bundle/release/app-release.aab ]; then
+            cp app/build/outputs/bundle/release/app-release.aab out/ParaLine-GooglePlay.aab
+            cp app/build/outputs/apk/release/app-release.apk out/ParaLine.apk
+          fi
+          ls -l out
+
+      - name: Publish the APK as a release (direct download link)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp out/ParaLine-test.apk out/ParaLine.apk 2>/dev/null || true
+          gh release create "v1.0.${{ github.run_number }}" out/ParaLine.apk \
+            --repo "${{ github.repository }}" --target "${{ github.sha }}" \
+            --title "ParaLine 1.0.${{ github.run_number }}" --notes "Install ParaLine.apk on your Android phone."
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ParaLine-app
+          path: out/
+          if-no-files-found: error
+
+  make-signing-key:
+    if: github.event_name == 'workflow_dispatch' && inputs.task == 'make-signing-key'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Create upload key
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          if [ "${#KEYSTORE_PASSWORD}" -lt 6 ]; then
+            echo "::error::First add a repository secret named KEYSTORE_PASSWORD (at least 6 characters)."
+            exit 1
+          fi
+          keytool -genkeypair -keystore upload.jks -storetype PKCS12 -alias upload \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass "$KEYSTORE_PASSWORD" -dname "CN=ParaLine"
+          base64 -w0 upload.jks > KEYSTORE_BASE64.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: signing-key-KEEP-PRIVATE
+          path: |
+            upload.jks
+            KEYSTORE_BASE64.txt
+          retention-days: 1

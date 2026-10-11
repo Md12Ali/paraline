@@ -1,0 +1,38 @@
+APP NAME (max 30)
+ParaLine: Paraphrase & Rewrite
+
+SHORT DESCRIPTION (max 80)
+Rephrase any amount of text for free. Every line stays on its own line.
+
+FULL DESCRIPTION
+ParaLine rewrites your English text in a new way while keeping its layout exactly as you wrote it. Paste one sentence or a whole document: the result always has the same number of lines, with the same blank lines, bullets, numbering and indentation.
+
+WHAT IT DOES
+• Six styles: Standard, Humanize, Formal, Simple, Creative and Shorten
+• Three strengths: Light, Medium, Strong
+• Changed words are highlighted so you can see what is different
+• Tap a line number to reword just that one line
+• Links, e-mail addresses, numbers, names and quoted text are left untouched
+• Share text from any app, or select text and choose ParaLine
+
+FREE AND UNLIMITED OFFLINE
+The built-in offline engine works without internet, without an account and without any length limit. Your text never leaves your phone.
+
+OPTIONAL AI MODE
+For more natural, deeper rewrites, add your own free Google Gemini API key in settings. AI mode then rewrites your text with Google's Gemini models. The free daily amount is set by Google for your key; when it runs out, ParaLine finishes the rest offline.
+
+PRIVATE
+No ads, no accounts, no tracking.
+
+Note: the offline engine is rule-based. It rewords and tidies text well, but for the most natural results use AI mode, and always read the result before you send it.
+
+DATA SAFETY FORM (suggested answers)
+- Does your app collect or share any of the required user data types?  Yes
+- Data type: "Other user-generated content" (the text a user chooses to rephrase), only when the user turns on AI mode
+- Collected? No (the developer never receives it).  Shared? Yes, sent to Google's Gemini API at the user's request to perform the rewrite
+- Is this data processed ephemerally / required for app functionality? Optional feature, user-initiated
+- Is all data encrypted in transit? Yes
+- Can users request data deletion? Not applicable: nothing is stored by the developer
+(Read each question in Play Console yourself; the answers above describe how the app behaves.)
+
+CATEGORY: Productivity     CONTENT RATING: Everyone     ADS: No
