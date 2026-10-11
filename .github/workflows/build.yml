@@ -61,22 +61,29 @@ jobs:
             echo "ready=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Build test APK
-        run: gradle --no-daemon assembleDebug
+      - name: Build the installable APK
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: gradle --no-daemon assembleRelease
+
+      - name: Check the APK signature
+        run: |
+          BT="$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)"
+          "$BT/apksigner" verify --verbose --print-certs --min-sdk-version 21 app/build/outputs/apk/release/app-release.apk
+          "$BT/aapt2" dump badging app/build/outputs/apk/release/app-release.apk | head -8
 
       - name: Build signed Google Play bundle
         if: steps.sign.outputs.ready == 'true'
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-        run: gradle --no-daemon bundleRelease assembleRelease
+        run: gradle --no-daemon bundleRelease
 
       - name: Collect files
         run: |
           mkdir -p out
-          cp app/build/outputs/apk/debug/app-debug.apk out/ParaLine-test.apk
+          cp app/build/outputs/apk/release/app-release.apk out/ParaLine.apk
           if [ -f app/build/outputs/bundle/release/app-release.aab ]; then
             cp app/build/outputs/bundle/release/app-release.aab out/ParaLine-GooglePlay.aab
-            cp app/build/outputs/apk/release/app-release.apk out/ParaLine.apk
           fi
           ls -l out
 
@@ -84,7 +91,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          cp out/ParaLine-test.apk out/ParaLine.apk 2>/dev/null || true
           gh release create "v1.0.${{ github.run_number }}" out/ParaLine.apk \
             --repo "${{ github.repository }}" --target "${{ github.sha }}" \
             --title "ParaLine 1.0.${{ github.run_number }}" --notes "Install ParaLine.apk on your Android phone."

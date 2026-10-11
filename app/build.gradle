@@ -14,7 +14,7 @@ android {
     defaultConfig {
         // The app's permanent ID on Google Play. Change it BEFORE the first upload if you want your own.
         applicationId = 'com.paraline.rewriter'
-        minSdk = 24
+        minSdk = 21
         targetSdk = 36
         // Google Play needs a higher number for every upload; the workflow run number provides it.
         versionCode = (System.getenv('GITHUB_RUN_NUMBER') ?: '1') as Integer
@@ -35,16 +35,24 @@ android {
                 storePassword = keystorePassword
                 keyAlias = 'upload'
                 keyPassword = keystorePassword
+            } else {
+                // Personal installs: the fixed key kept in this repo.
+                storeFile = file('debug.keystore')
+                storePassword = 'android'
+                keyAlias = 'androiddebugkey'
+                keyPassword = 'android'
             }
+            // Sign with every scheme so all phones and installers accept the file.
+            enableV1Signing = true
+            enableV2Signing = true
+            enableV3Signing = true
         }
     }
 
     buildTypes {
         release {
             minifyEnabled = false
-            if (canSign) {
-                signingConfig = signingConfigs.release
-            }
+            signingConfig = signingConfigs.release
         }
     }
 

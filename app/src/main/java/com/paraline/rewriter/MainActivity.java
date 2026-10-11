@@ -84,6 +84,14 @@ public class MainActivity extends Activity {
                 openExternally(url);
                 return true; // the WebView itself never leaves the bundled page
             }
+
+            @Override
+            @SuppressWarnings("deprecation")
+            public boolean shouldOverrideUrlLoading(WebView view, String url) { // Android 5 and 6
+                if (url == null || url.startsWith(ASSETS)) return false;
+                openExternally(url);
+                return true;
+            }
         });
 
         readIntent(getIntent());
