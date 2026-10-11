@@ -377,7 +377,7 @@
   $('openSettings').onclick = openSettings;
   $('closeSettings').onclick = closeSettings;
   $('testKey').onclick = testKey;
-  $('delKey').onclick = function () { st.key = ''; save('key', null); $('key').value = ''; st.engine = 'offline'; save('engine', 'offline'); renderEngine(); $('keyMsg').textContent = 'Key removed from this phone.'; };
+  $('delKey').onclick = function () { st.key = ''; save('key', null); $('key').value = ''; st.engine = 'offline'; save('engine', 'offline'); renderEngine(); $('keyMsg').textContent = 'Key removed from this device.'; };
   $('model').onchange = function () { st.model = this.value; save('model', st.model); };
   $('keyLink').onclick = function (e) { if (A && A.openUrl) { e.preventDefault(); A.openUrl(this.href); } };
   $('settings').addEventListener('click', function (e) { if (e.target === this) closeSettings(); });
@@ -386,6 +386,8 @@
   window.__incoming = function (t) { if (t) { setInput(String(t)); toast('Text received'); } };
   window.__back = function () { var d = $('settings'); if (d.open) { closeSettings(); return true; } return false; };
 
+  if (location.protocol === 'file:') document.documentElement.classList.add('in-app');
+  else if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
   renderModes(); renderStrength(); renderEngine(); renderMarks();
   if (st.engine === 'ai' && !st.key) { st.engine = 'offline'; renderEngine(); }
   var incoming = A && A.takeIncoming ? A.takeIncoming() : '';

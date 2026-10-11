@@ -1,0 +1,20 @@
+# Render Blueprint: publishes ParaLine as a free static site.
+services:
+  - type: web
+    name: paraline
+    runtime: static
+    buildCommand: ./build-site.sh
+    staticPublishPath: ./public
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: no-referrer
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /sw.js
+        name: Cache-Control
+        value: no-cache

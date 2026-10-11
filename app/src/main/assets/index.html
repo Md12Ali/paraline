@@ -4,7 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
-<title>ParaLine</title>
+<title>ParaLine: free unlimited paraphrasing tool</title>
+<meta name="description" content="Rephrase any amount of English text for free. Six styles, no sign-up, no limits, and every line stays on its own line.">
+<meta name="theme-color" content="#F5F1E8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14130F" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
 <style>
 :root{
   --paper:#F5F1E8; --card:#FFFDF8; --ink:#1E1B15; --soft:#6B6558; --rule:#DED7C7; --gutter:#A39B88;
@@ -94,6 +100,18 @@ dialog::backdrop{background:rgba(20,18,12,.5)}
 .toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:999px;font-size:14px;opacity:0;pointer-events:none;transition:.2s;max-width:88vw;text-align:center;z-index:9}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
+footer{margin-top:22px;font-size:13px;color:var(--soft);display:flex;gap:6px 16px;flex-wrap:wrap}
+footer a{color:var(--accent);font-weight:600}
+.in-app footer{display:none}
+@media (min-width: 960px){
+  body{max-width:1240px;padding:0 28px 40px}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
+  textarea{min-height:440px;max-height:62vh}
+  #out{min-height:440px;max-height:62vh}
+  .cols .sheet-card{margin-top:14px}
+  .go{max-width:none}
+  dialog{margin:auto;border-radius:18px}
+}
 </style>
 </head>
 <body>
@@ -119,6 +137,8 @@ dialog::backdrop{background:rgba(20,18,12,.5)}
 </div>
 <p class="hint" id="modeHint"></p>
 
+<div class="cols">
+<div>
 <section class="sheet-card">
   <div class="card-head">
     <h2>Your text</h2>
@@ -132,6 +152,7 @@ dialog::backdrop{background:rgba(20,18,12,.5)}
 <button class="go" id="go">Rephrase</button>
 <div class="bar" id="bar"><div></div></div>
 <div class="note" id="note" role="status"></div>
+</div>
 
 <section class="sheet-card" id="outCard">
   <div class="card-head">
@@ -144,11 +165,13 @@ dialog::backdrop{background:rgba(20,18,12,.5)}
   <div id="out" aria-live="polite"><div class="empty">Your rephrased text appears here, line for line.<br>Tap a line number to reword just that line.</div></div>
   <div class="card-foot"><span id="outLines">–</span><span id="outWords">–</span><span id="outChanged">–</span></div>
 </section>
+</div>
+<footer><span>Free. No sign-up. No limit in offline mode.</span><a href="privacy.html">Privacy</a></footer>
 
 <dialog id="settings" aria-labelledby="setTitle">
   <div class="dlg">
     <h3 id="setTitle">AI mode</h3>
-    <p>Offline mode is always free and unlimited. AI mode gives more natural rewrites using Google Gemini with your own free key. The key stays on this phone.</p>
+    <p>Offline mode is always free and unlimited. AI mode gives more natural rewrites using Google Gemini with your own free key. The key stays on this device.</p>
     <ol>
       <li>Open <a href="https://aistudio.google.com/apikey" id="keyLink">aistudio.google.com/apikey</a> and sign in.</li>
       <li>Tap “Create API key”, copy it, and paste it below.</li>
